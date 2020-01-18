@@ -63,7 +63,6 @@
         yasnippet
         yasnippet-snippets
         multiple-cursors
-        eglot
         visual-regexp
         command-log-mode
         undo-tree
@@ -250,9 +249,10 @@
   ;;; line wrapping
   ;; neck beards be damned, we don't need to hard wrap. The editor can soft wrap for us.
   (remove-hook 'text-mode-hook 'turn-on-auto-fill)
-;; (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode)
+  ;; (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode)
+  ;; 
   (setq-default truncate-lines t)
-  (add-hook 'text-mode-hook 'visual-line-mode 1)
+  (global-visual-line-mode 1)
   (add-hook 'prog-mode-hook
             (lambda()
               (setq truncate-lines t)
@@ -627,10 +627,6 @@
 ;; not sure why this should be set in a hook, but that is how the manual says to do it.
 (add-hook 'after-init-hook 'global-company-mode)
 
-(require 'eglot)
-(setq eglot-ignored-server-capabilites
-      '(:documentHighlightProvider :hoverProvider))
-
 ;; which-key settings taken mostly from https://github.com/aculich/.emacs.d/blob/master/init.el
 (with-eval-after-load "which-key"
   (setq which-key-sort-order 'which-key-prefix-then-key-order
@@ -734,9 +730,14 @@
 (setq comint-scroll-to-bottom-on-output t)
 (setq comint-move-point-for-output t)
 
+(when (executable-find "jupyter")
+  (require 'ein)
+  (require 'ein-notebook)
+  (require 'ein-subpackages))
+
 ;;;  ESS (Emacs Speaks Statistics)
 (with-eval-after-load "ess"
-  (add-hook 'ess-r-mode-hook 'eglot-ensure)
+  (require 'ess-site)
   (add-hook 'ess-r-mode-hook
             (lambda()
               (make-local-variable 'company-backends)
@@ -751,6 +752,7 @@
   (setq
    ess-auto-width 'window
    ess-use-auto-complete nil
+   ess-use-flymake nil
    ess-use-company 't
    ;; ess-r-package-auto-set-evaluation-env nil
    inferior-ess-same-window nil
@@ -781,9 +783,6 @@
   (setq python-shell-completion-native-enable nil)
   ;; simple evaluation with C-ret
   (require 'eval-in-repl-python)
-  (when (executable-find "pyls")
-    (add-hook 'python-mode-hook 'eglot-ensure)
-    (add-hook 'inferior-python-mode-hook 'eglot-ensure))
   ;;(setq eir-use-python-shell-send-string nil)
   (define-key python-mode-map (kbd "C-c C-c") 'eir-eval-in-python)
   (define-key python-mode-map (kbd "<C-return>") 'eir-eval-in-python)
@@ -832,9 +831,7 @@
   (defalias 'haskell 'haskell-interactive-bring)
   (when (or (executable-find "hie")
             (executable-find "hie-wrapper")
-            (executable-find "stack"))
-  (add-hook 'haskell-mode-hook 'eglot-ensure)
-  (add-hook 'haskell-interactive-mode-hook 'eglot-ensure))
+            (executable-find "stack")))
   (when (executable-find "stack")
     (intero-global-mode 1)))
 
