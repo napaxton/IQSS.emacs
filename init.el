@@ -198,12 +198,13 @@
 (minions-mode 1)
 
 ;; No, we do not need the splash screen
-(setq inhibit-startup-screen t)
+;;(setq inhibit-startup-screen t)
 
 (require 'better-defaults)
 ;; better defaults are well, better... but we don't always agree
 (menu-bar-mode 1)
 (scroll-bar-mode 1)
+(tool-bar-mode 1)
 
 (setq select-active-regions 'only)
 
